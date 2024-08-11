@@ -1,8 +1,10 @@
-import express from "express";
-import cors from "cors";
-import jwt from "jsonwebtoken";
-import fs from "fs";
+import express from 'express';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
 import 'dotenv/config';
+import journalRoutes from './routes/journal-routes.js';
+import { authenticateToken } from './middleware/authenticateToken.js'; 
 
 const app = express();
 const port = process.env.PORT ?? 2222;
@@ -12,92 +14,73 @@ app.use(cors());
 app.use(express.json());
 
 const loadUsers = () => {
-  try {
-    return JSON.parse(fs.readFileSync(usersFilePath));
-  } catch (err) {
-    console.error("Error loading users file:", err);
-    return [];
-  }
+    try {
+        return JSON.parse(fs.readFileSync(usersFilePath));
+    } catch (err) {
+        console.error("Error loading users file:", err);
+        return [];
+    }
 };
 
 const saveUsers = (users) => {
-  try {
-    fs.writeFileSync(usersFilePath, JSON.stringify(users));
-  } catch (err) {
-    console.error("Error saving users file:", err);
-  }
+    try {
+        fs.writeFileSync(usersFilePath, JSON.stringify(users));
+    } catch (err) {
+        console.error("Error saving users file:", err);
+    }
 };
 
 const getUser = (username) => {
-  const users = loadUsers();
-  return users.find((user) => user.username === username);
+    const users = loadUsers();
+    return users.find((user) => user.username === username);
 };
 
 app.post("/signup", (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" });
-  }
+    if (!username || !password) {
+        return res.status(400).json({ error: "Username and password required" });
+    }
 
-  const users = loadUsers(); 
+    const users = loadUsers(); 
 
-  if (getUser(username)) {
-    return res.status(400).json({ error: "User already exists" });
-  }
+    if (getUser(username)) {
+        return res.status(400).json({ error: "User already exists" });
+    }
 
-  users.push({ username, password });
-  saveUsers(users);
+    users.push({ username, password });
+    saveUsers(users);
 
-  res.json({ success: true });
+    res.json({ success: true });
 });
 
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" });
-  }
-
-  const user = getUser(username);
-
-  if (user && user.password === password) {
-    const token = jwt.sign(
-      { username: user.username },
-      process.env.SECRET_KEY,
-      { expiresIn: '1h' } 
-    );
-    res.json({ token });
-  } else {
-    res.status(401).json({ error: "Invalid credentials" });
-  }
-});
-
-
-app.get(
-  "/profile",
-  (req, res, next) => {
-    const { authorization } = req.headers;
-
-    if (!authorization) {
-      return res.status(401).json({ error: "No token provided" });
+    if (!username || !password) {
+        return res.status(400).json({ error: "Username and password required" });
     }
 
-    const token = authorization.replace("Bearer ", "");
+    const user = getUser(username);
 
-    jwt.verify(token, process.env.SECRET_KEY, (err, payload) => {
-      if (err) {
-        return res.status(401).json({ error: "Token verification failed" });
-      }
-      req.payload = payload;
-      next();
-    });
-  },
-  (req, res) => {
+    if (user && user.password === password) {
+        const token = jwt.sign(
+            { username: user.username },
+            process.env.SECRET_KEY,
+            { expiresIn: '1h' } 
+        );
+        res.json({ token });
+    } else {
+        res.status(401).json({ error: "Invalid credentials" });
+    }
+});
+
+app.get("/profile", authenticateToken, (req, res) => {
     res.json(req.payload);
-  }
-);
+});
+
+app.use("/journal", authenticateToken, journalRoutes);
 
 app.listen(port, () => {
-  console.log(`Express listening on port ${port}`);
+    console.log(`Express listening on port ${port}`);
 });
