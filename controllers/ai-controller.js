@@ -23,9 +23,12 @@ const getReassurance = async (req, res) => {
                 },
             ],
         });
+        const reassuranceMessage = response.choices[0].message.content;
+
         res.setHeader('Content-Type', 'application/json');
 
-        res.status(200).json({ message: response.choices[0].message.content });
+        res.send(reassuranceMessage);
+
     } catch (error) {
         console.error("Error generating response: ", error);
         res.status(500).json({ error: "Failed to get results." });

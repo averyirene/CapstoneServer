@@ -3,20 +3,13 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
-const getAllJournalEntries = async (_req, res) => {
+const getAllJournalEntries = async (req, res) => {
     const { username } = req.payload;
-    
+
     try {
         const entries = await knex("journal")
             .select("*")
             .where({ username });
-
-
-        if (entries.length === 0) {
-            return res.status(404).json({
-                message: "No journal entries found",
-            });
-        }
 
         res.status(200).json(entries);
     } catch (error) {
@@ -91,6 +84,7 @@ const deleteJournalEntry = async (req, res) => {
         });
     }
 };
+
 
 export {
     getAllJournalEntries,

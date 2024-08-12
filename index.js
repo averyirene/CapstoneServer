@@ -36,6 +36,7 @@ const getUser = (username) => {
     return users.find((user) => user.username === username);
 };
 
+
 app.post("/signup", (req, res) => {
     const { username, password } = req.body;
 
@@ -54,6 +55,7 @@ app.post("/signup", (req, res) => {
 
     res.json({ success: true });
 });
+
 
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
