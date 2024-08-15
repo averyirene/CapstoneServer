@@ -7,6 +7,8 @@ import journalRoutes from './routes/journal-routes.js';
 import { authenticateToken } from './middleware/authenticateToken.js'; 
 import aiRoutes from './routes/ai-routes.js';
 import symptomRoutes from './routes/symtoms.js';
+import bcrypt from 'bcrypt';
+
 
 const app = express();
 const port = process.env.PORT ?? 2222;
@@ -24,6 +26,7 @@ const loadUsers = () => {
     }
 };
 
+
 const saveUsers = (users) => {
     try {
         fs.writeFileSync(usersFilePath, JSON.stringify(users));
@@ -38,7 +41,7 @@ const getUser = (username) => {
 };
 
 
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -51,14 +54,16 @@ app.post("/signup", (req, res) => {
         return res.status(400).json({ error: "User already exists" });
     }
 
-    users.push({ username, password });
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    users.push({ username, password: encryptedPassword });
     saveUsers(users);
 
     res.json({ success: true });
 });
 
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -67,7 +72,7 @@ app.post("/login", (req, res) => {
 
     const user = getUser(username);
 
-    if (user && user.password === password) {
+    if (user && await bcrypt.compare (password, user.password)) {
         const token = jwt.sign(
             { username: user.username },
             process.env.SECRET_KEY,
