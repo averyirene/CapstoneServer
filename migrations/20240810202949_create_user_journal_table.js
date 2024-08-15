@@ -1,5 +1,3 @@
-
-
 export async function up(knex) {
     return knex.schema.createTable('journal', (table) => {
         table.increments('id').primary();

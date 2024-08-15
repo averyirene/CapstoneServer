@@ -6,6 +6,7 @@ import 'dotenv/config';
 import journalRoutes from './routes/journal-routes.js';
 import { authenticateToken } from './middleware/authenticateToken.js'; 
 import aiRoutes from './routes/ai-routes.js';
+import symptomRoutes from './routes/symtoms.js';
 
 const app = express();
 const port = process.env.PORT ?? 2222;
@@ -84,6 +85,7 @@ app.get("/profile", authenticateToken, (req, res) => {
 
 app.use("/journal", authenticateToken, journalRoutes);
 app.use('/api', aiRoutes);
+app.use ('/symptoms', authenticateToken, symptomRoutes);
 
 app.listen(port, () => {
     console.log(`Express listening on port ${port}`);
