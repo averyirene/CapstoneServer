@@ -6,5 +6,6 @@ const router = express.Router();
 router.post('/', authenticateToken, journalController.addJournalEntry);
 router.get('/', authenticateToken, journalController.getAllJournalEntries);
 router.get('/:id', authenticateToken, journalController.getSingleEntry);
+router.delete('/:id', authenticateToken, journalController.deleteJournalEntry);
 
 export default router;

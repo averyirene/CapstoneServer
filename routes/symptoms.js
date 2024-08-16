@@ -6,5 +6,7 @@ const router = express.Router();
 
 router.post('/', authenticateToken, symptomController.addSymptomEntry);
 router.get('/', authenticateToken, symptomController.getSymptomEntries);
+router.get('/:id', authenticateToken, symptomController.getSingleSymptom);
+router.delete('/:id', authenticateToken, symptomController.deleteSymptom);
 
 export default router;

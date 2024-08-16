@@ -6,7 +6,7 @@ import 'dotenv/config';
 import journalRoutes from './routes/journal-routes.js';
 import { authenticateToken } from './middleware/authenticateToken.js'; 
 import aiRoutes from './routes/ai-routes.js';
-import symptomRoutes from './routes/symtoms.js';
+import symptomRoutes from './routes/symptoms.js';
 import bcrypt from 'bcrypt';
 
 

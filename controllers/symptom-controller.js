@@ -31,4 +31,42 @@ const addSymptomEntry = async (req, res) => {
     }
 };
 
-export { getSymptomEntries, addSymptomEntry };
+const getSingleSymptom = async (req, res) => {
+    try {
+        const entry = await knex("symptoms").where({ id: req.params.id }).first();
+
+        if (!entry) {
+            return res.status(404).json({
+                message: `Symptom ID ${req.params.id} not found`,
+            });
+        }
+
+        res.status(200).json(entry);
+    } catch (error) {
+        res.status(500).json({
+            message: "Unable to retrieve symptom",
+        });
+    }
+};
+
+const deleteSymptom = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const count = await knex("symptoms").where({ id }).del();
+
+        if (count > 0) {
+            res.status(204).send(); 
+        } else {
+            res.status(404).json({
+                message: `Symptom not found`,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: `Unable to delete symptom`
+        });
+    }
+};
+
+export { getSymptomEntries, addSymptomEntry, getSingleSymptom, deleteSymptom };

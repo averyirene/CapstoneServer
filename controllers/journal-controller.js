@@ -75,12 +75,12 @@ const deleteJournalEntry = async (req, res) => {
             res.status(204).send(); 
         } else {
             res.status(404).json({
-                message: `Journal entry with ID ${id} not found`,
+                message: `Journal entry not found`,
             });
         }
     } catch (error) {
         res.status(500).json({
-            message: `Unable to delete journal entry: ${error.message}`,
+            message: `Unable to delete journal entry`
         });
     }
 };
